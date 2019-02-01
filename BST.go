@@ -153,12 +153,36 @@ func main() {
 		strings[i] = strconv.Itoa(i);
 	}
 
+	var avg int64 = 0;
+	var worst int64 = 0;
+
 	r := rand.New(rand.NewSource(time.Now().Unix()))
-  	for _, i := range r.Perm(len(strings)) {
-    	t.add(i, strings[i]);
+  	for s, i := range r.Perm(len(strings)) {
+		start := time.Now().UnixNano();
+		t.add(i, strings[i]);
+		now := time.Now().UnixNano() - start;
+		if s == 0 { fmt.Println("First insertion: ", now, "ns"); }
+		if now > worst { worst = now; }
+		avg += now;
 	}
-	  
-	fmt.Println(t.find(9999));
-	fmt.Println(t.head.key);
+
+	fmt.Println("Worst time: ", worst, "ns");
+	fmt.Println("Average time: ", (avg/10000), "ns\n\n");
+
+	found := true;
+	avg = 0;
+	worst = 0;
+
+	for i := 0; i < 10000; i++ {
+		start := time.Now().UnixNano();
+		found = found && !(t.find(i) == "DNE");
+		now := time.Now().UnixNano() - start;
+		if now > worst { worst = now; }
+		avg += now;
+	}
+
+	fmt.Println("All entries found: ", found);
+	fmt.Println("Worst time: ", worst, "ns");
+	fmt.Println("Average time: ", (avg/10000), "ns");
 
 }
